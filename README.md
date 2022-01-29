@@ -1,3 +1,4 @@
+![BuildStatus](https://github.com/apblair/project4/actions/workflows/main.yml/badge.svg?event=push)
 # Project 4
 Needleman Wunsch Algorithm
 
