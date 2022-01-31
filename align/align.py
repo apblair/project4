@@ -108,16 +108,28 @@ class NeedlemanWunsch:
         _read_sub_matrix as an example.
         Don't forget to comment your code!
         """
+        print('### NW Setup ###', '\n')
+
         # Initialize 6 matrix private attributes for use in alignment
         # create matrices for alignment scores and gaps
         self._align_matrix = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
         self._gapA_matrix = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
         self._gapB_matrix = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
 
+        print('alignment matrix: ', '\n', self._align_matrix)
+        print('gap a matrix: ', '\n', self._gapA_matrix)
+        print('gap b matrix: ', '\n', self._gapB_matrix)
+        print('\n')
+
         # create matrices for pointers used in backtrace procedure
         self._back = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
         self._back_A = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
         self._back_B = np.ones((len(seqA) + 1, len(seqB) + 1)) * -np.inf
+
+        print('back trace: ', '\n', self._back)
+        print('back a trace: ', '\n', self._back_A)
+        print('back b trace', '\n', self._back_B)
+        print('\n')
 
         # Resetting alignment in case method is called more than once
         self.seqA_align = ""
@@ -130,8 +142,79 @@ class NeedlemanWunsch:
         self._seqA = seqA
         self._seqB = seqB
 
-        # TODO Implement the global sequence alignment here
-        pass
+        print('seqA: ', self._seqA)
+        print('seqB: ', self._seqB)
+        print('\n')
+
+        print('gap open: ', self.gap_open)
+        print('gap extend: ',self.gap_extend)
+        print('\n')
+
+        # print('substitution dictionary: ', self.sub_dict)
+        # print('\n')
+
+        print('### Initialization ###', '\n')
+        self._align_matrix[0,0] = 0
+        self._gapA_matrix[:,0] = [self.gap_open + n*self.gap_extend for n in range(len(self._seqA) + 1)] # column
+        self._gapB_matrix[0,:] = [self.gap_open + m*self.gap_extend for m in range(len(self._seqB) + 1)] # row
+        print('alignment matrix: ', '\n', self._align_matrix)
+        print('gap a matrix: ', '\n', self._gapA_matrix)
+        print('gap b matrix: ', '\n', self._gapB_matrix)
+        print('\n')
+
+        print('### Compute inner score matrix ###', '\n')
+        # Calculate inner values in the score matrix
+        for m in range(1, self._align_matrix.shape[0]):
+            for n in range(1, self._align_matrix.shape[1]):
+
+                print('row: ', m)
+                print('column: ', n, '\n')      
+
+                maxtrix_alignment_list = [self._align_matrix[m-1, n-1],
+                                        self._gapA_matrix[m-1, n-1],
+                                        self._gapB_matrix[m-1, n-1]]
+                max_value, max_index = max(maxtrix_alignment_list), np.argmax(maxtrix_alignment_list)
+                self._align_matrix[m,n] = self.sub_dict[(self._seqA[m-1], self._seqB[n-1])] + max_value
+                self._back[m,n] = max_index
+
+                print('## Alignment matrix ##')         
+                print('matrix alignment list: ', maxtrix_alignment_list)
+                print('max value: ', max_value)
+                print('max index: ', max_index)
+                print('amino acids: ', (self._seqA[m-1], self._seqB[n-1]))
+                print('substitution dict value: ', self.sub_dict[(self._seqA[m-1], self._seqB[n-1])])
+                print('alignment matrix: ', '\n', self._align_matrix)
+                print('backtrace matrix: ', '\n', self._back, '\n')
+
+                a_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m, n-1], 
+                                self.gap_extend + self._gapA_matrix[m, n-1], 
+                                self.gap_open + self.gap_extend + self._gapB_matrix[m, n-1]]
+                a_max_value, a_max_index = max(a_matrix_list), np.argmax(a_matrix_list)
+                self._gapA_matrix[m, n] = a_max_value
+                self._back_A[m, n] = a_max_index
+
+                print('## A matrix ##')         
+                print('A matrix list: ', a_matrix_list)
+                print('max A value: ', a_max_value)
+                print('max A index: ', a_max_index)
+                print('gap A matrix: ', '\n',self._gapA_matrix)
+                print('A backtrace matrix: ', '\n', self._back_A, '\n')
+
+                b_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m-1,n],
+                                 self.gap_open + self.gap_extend + self._gapA_matrix[m-1,n],
+                                 self.gap_extend + self._gapB_matrix[m-1, n]] 
+                b_max_value, b_max_index = max(b_matrix_list), np.argmax(b_matrix_list)
+                self._gapB_matrix[m, n] = b_max_value
+                self._back_B[m, n] = b_max_index
+
+                print('## B matrix ##')         
+                print('B matrix list: ', b_matrix_list)
+                print('max B value: ', b_max_value)
+                print('max B index: ', b_max_index)
+                print('gap B matrix: ', '\n', self._gapB_matrix)
+                print('B backtrace matrix: ', '\n', self._back_B)
+
+                print('\n','\n')
 
         return self._backtrace()
 
@@ -184,3 +267,9 @@ def read_fasta(fasta_file: str) -> Tuple[str, str]:
             elif is_header and not first_header:
                 break
     return seq, header
+
+
+seq_1, header_1 = read_fasta("./data/test_seq1.fa")
+seq_2, header_2 = read_fasta("./data/test_seq2.fa")
+nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -10, -1)
+out = nw.align(seq_1, seq_2)
