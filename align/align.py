@@ -97,7 +97,7 @@ class NeedlemanWunsch:
                 elif start is True and res_2 == len(residue_list):
                     break
         return dict_sub
-
+    
     def align(self, seqA: str, seqB: str) -> Tuple[float, str, str]:
         """
         # TODO: Fill in the Needleman-Wunsch Algorithm below
@@ -217,6 +217,12 @@ class NeedlemanWunsch:
                 print('\n','\n')
 
         return self._backtrace()
+    
+    def _find_max_alignment_matrix(self):
+        """
+        """
+        matrices_list = [self._align_matrix[-1][-1], self._gapA_matrix[-1][-1], self._gapB_matrix[-1][-1]]
+        return max(matrices_list), np.argmax(matrices_list)
 
     def _backtrace(self) -> Tuple[float, str, str]:
         """
@@ -226,7 +232,10 @@ class NeedlemanWunsch:
         score, the seqA alignment and the seqB alignment respectively.
         """
         # Implement this method based upon the heuristic chosen in the align method above.
-        pass
+
+        # self._align_matrix, self._gapA_matrix, self._gapB_matrix
+        max_matrix_score, max_matrix_index  = self._find_max_alignment_matrix()
+        print(max_matrix_score, max_matrix_index)
 
 
 def read_fasta(fasta_file: str) -> Tuple[str, str]:
