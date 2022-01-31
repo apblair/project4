@@ -217,12 +217,6 @@ class NeedlemanWunsch:
                 print('\n','\n')
 
         return self._backtrace()
-    
-    def _find_max_alignment_matrix(self):
-        """
-        """
-        matrices_list = [self._align_matrix[-1][-1], self._gapA_matrix[-1][-1], self._gapB_matrix[-1][-1]]
-        return max(matrices_list), np.argmax(matrices_list)
 
     def _backtrace(self) -> Tuple[float, str, str]:
         """
@@ -233,10 +227,27 @@ class NeedlemanWunsch:
         """
         # Implement this method based upon the heuristic chosen in the align method above.
 
-        # self._align_matrix, self._gapA_matrix, self._gapB_matrix
-        max_matrix_score, max_matrix_index  = self._find_max_alignment_matrix()
-        print(max_matrix_score, max_matrix_index)
+        print('### Starting backtrace ###')
 
+        m_row,n_column = len(self._seqA),len(self._seqB)
+        
+        matrices_list = [self._align_matrix[-1,-1], self._gapA_matrix[-1,-1], self._gapB_matrix[-1,-1]]
+        max_matrix_score, max_matrix_index  = max(matrices_list), np.argmax(matrices_list)
+        
+        print('seq a: ', self._seqA)
+        print('seq b: ',self._seqB)
+        print('Number of rows x columns: ', m_row, n_column)
+        print('Alignment matrix shape: ', self._align_matrix.shape)
+        print('Max alignment score: ', max_matrix_score)
+        print('Max alignment matrix index [align, gap a, gap b]: ', max_matrix_index)
+
+        while m_row>0 and n_column>0:
+            if max_matrix_index == 0:
+                self.seqA_align = self._seqA[m_row-1] + self.seqA_align 
+                self.seqB_align = self._seqB[n_column-1] + self.seqB_align 
+                print(self.seqA_align)
+                print(self.seqB_align)
+            break
 
 def read_fasta(fasta_file: str) -> Tuple[str, str]:
     """
