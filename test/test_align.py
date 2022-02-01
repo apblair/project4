@@ -5,6 +5,8 @@ import numpy as np
 
 def test_nw_alignment():
     """
+    Unit test for the alignment matrix's shape, initialization, score, and last row.
+
     TODO: Write your unit test for NW alignment
     using test_seq1.fa and test_seq2.fa by
     asserting that you have correctly filled out
@@ -24,6 +26,8 @@ def test_nw_alignment():
 
 def test_nw_backtrace():
     """
+    Unit test for the last row in each back trace matrix.
+
     TODO: Write your unit test for NW backtracing
     using test_seq3.fa and test_seq4.fa by
     asserting that the backtrace is correct.
@@ -32,8 +36,9 @@ def test_nw_backtrace():
     """
     seq3, _ = read_fasta("./data/test_seq3.fa")
     seq4, _ = read_fasta("./data/test_seq4.fa")
-    pass
+    nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -10, -1)
+    alignment_tuple = nw.align(seq3, seq4)
 
-
-test_nw_alignment()
-
+    assert np.allclose(nw._back[-1,:], [-np.inf,   1.,   2.,   0.,   2.,   2.,   0.,   0.])
+    assert np.allclose(nw._back_A[-1,:], [-np.inf,   1.,   1.,   1.,   2.,   2.,   2.,   2.])
+    assert np.allclose(nw._back_B[-1,:], [-np.inf,   2.,   2.,   2.,   2.,   2.,   0.,   1.])

@@ -109,6 +109,7 @@ class NeedlemanWunsch:
     
     def _initialize_NeedlemanWunsch_verbose(self):
         """
+        Initialization debug printing for data structure setup
         """
         print('### NW Setup ###', '\n')
 
@@ -140,15 +141,16 @@ class NeedlemanWunsch:
     
     def _construct_M(self, m, n):
         """
-
+        Compute M[i,j], select max value and index, and cache in the aligment and backtrace matrices.
+        
         Parameters
         ----------
-        m
-        n
+        m : int
+            matrix row index
+        n : int
+            matrix column index
         """
-        maxtrix_alignment_list = [self._align_matrix[m-1, n-1],
-                                        self._gapA_matrix[m-1, n-1],
-                                        self._gapB_matrix[m-1, n-1]]
+        maxtrix_alignment_list = [self._align_matrix[m-1, n-1], self._gapA_matrix[m-1, n-1], self._gapB_matrix[m-1, n-1]]
         max_value, max_index = max(maxtrix_alignment_list), np.argmax(maxtrix_alignment_list)
         self._align_matrix[m,n] = self.sub_dict[(self._seqA[m-1], self._seqB[n-1])] + max_value
         self._back[m,n] = max_index
@@ -156,14 +158,20 @@ class NeedlemanWunsch:
     
     def _construct_M_verbose(self, m, n, maxtrix_alignment_list, max_value, max_index):
         """
+        Compute M[i,j] debug printing
 
         Parameters
         ----------
-        m
-        n
-        maxtrix_alignment_list
-        max_value
-        max_index
+        m : int
+            matrix row index
+        n : int
+            matrix column index
+        maxtrix_alignment_list : list
+            list of M[i,j] int. scores
+        max_value : int
+            max value of matrix_alignment_list
+        max_index : int
+            index of max value in matrix_alignment_list
         """
         print('row: ', m)
         print('column: ', n, '\n')      
@@ -172,19 +180,24 @@ class NeedlemanWunsch:
         print('matrix alignment list: ', maxtrix_alignment_list)
         print('max value: ', max_value)
         print('max index: ', max_index)
+
         print('amino acids: ', (self._seqA[m-1], self._seqB[n-1]))
         print('substitution dict value: ', self.sub_dict[(self._seqA[m-1], self._seqB[n-1])])
+        
         print('alignment matrix: ', '\n', self._align_matrix)
         print('backtrace matrix: ', '\n', self._back, '\n')
 
     
     def _construct_gap_A(self, m, n):
         """
+        Compute gapA[i,j], select max value and index, and cache in the gap A and backtrace A matrices.
 
         Parameters
         ----------
-        m
-        n
+        m : int
+            matrix row index
+        n : int
+            matrix column index
         """
         a_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m, n-1], 
                                 self.gap_extend + self._gapA_matrix[m, n-1], 
@@ -196,12 +209,16 @@ class NeedlemanWunsch:
         
     def _construct_gap_A_verbose(self, a_matrix_list, a_max_value, a_max_index):
         """
+        Compute gapA[i,j] debug printing
 
         Parameters
         ----------
-        a_matrix_list
-        a_max_value
-        a_max_index
+        a_matrix_list : list
+            list of gapA[i,j] int. scores
+        a_max_value : int
+             max value of a_matrix_list
+        a_max_index : int
+            index of max value in a_matrix_list
         """
         print('## A matrix ##')         
         print('A matrix list: ', a_matrix_list)
@@ -212,11 +229,14 @@ class NeedlemanWunsch:
 
     def _construct_gap_B(self, m, n):
         """
+        Compute gapB[i,j], select max value and index, and cache in the gap B and backtrace B matrices.
 
         Parameters
         ----------
-        m
-        n
+        m : int
+            matrix row index
+        n : int
+            matrix column index
         """
         b_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m-1,n],
                                  self.gap_open + self.gap_extend + self._gapA_matrix[m-1,n],
@@ -228,12 +248,16 @@ class NeedlemanWunsch:
     
     def _construct_gap_B_verbose(self, b_matrix_list, b_max_value, b_max_index):
         """
+        Compute gapB[i,j] debug printing
 
         Parameters
         ----------
-        b_matrix_list
-        b_max_value
-        b_max_index
+        b_matrix_list : list
+            list of gapB[i,j] int. scores
+        b_max_value : int
+             max value of b_matrix_list
+        b_max_index : int
+            index of max value in b_matrix_list
         """
         print('## B matrix ##')         
         print('B matrix list: ', b_matrix_list)
@@ -302,12 +326,18 @@ class NeedlemanWunsch:
     
     def _backtrace_verbose(self, m_row, n_column, max_matrix_score, max_matrix_index):
         """
+        Backtrace debug printing
+
         Parameters
         ----------
-        m_row
-        n_column
-        max_matrix_score
-        max_matrix_index)
+        m_row : int
+            number of rows
+        n_column : int
+            number of columns
+        max_matrix_score : int
+            max matrix score
+        max_matrix_index : int
+            index of max maxtrix score
         """
         print('### Starting backtrace ###')
 
@@ -347,28 +377,31 @@ class NeedlemanWunsch:
         """
         # Implement this method based upon the heuristic chosen in the align method above.
 
-        m_row,n_column = len(self._seqA),len(self._seqB)
-
+        # Select best scoring matrix and set alignment score
         matrices_list = [self._align_matrix[-1,-1], self._gapA_matrix[-1,-1], self._gapB_matrix[-1,-1]]
         max_matrix_score, max_matrix_index  = max(matrices_list), np.argmax(matrices_list)
         self.alignment_score = max_matrix_score
 
+        # Alignment iteration
+        m_row,n_column = len(self._seqA),len(self._seqB)
         while m_row>0 and n_column>0:
-            
-            if max_matrix_index == 0:
+        
+            # Conditionals for sequence alignment
+            # using the back trace matrices
+            if max_matrix_index == 0: # alignment
                 self.seqA_align = self._seqA[m_row-1] + self.seqA_align 
                 self.seqB_align = self._seqB[n_column-1] + self.seqB_align 
                 max_matrix_index = self._back[m_row,n_column]
                 m_row-=1
                 n_column-=1
 
-            elif max_matrix_index == 1:
+            elif max_matrix_index == 1: # sequence a gap
                 self.seqA_align = '-' + self.seqA_align 
                 self.seqB_align = self._seqB[n_column-1] + self.seqB_align 
                 max_matrix_index = self._back_A[m_row, n_column]
                 n_column-=1
 
-            elif max_matrix_index == 2: 
+            elif max_matrix_index == 2: # sequence b gap
                 self.seqA_align = self._seqA[m_row-1]+ self.seqA_align
                 self.seqB_align = '-' + self.seqB_align
                 max_matrix_index = self._back_B[m_row, n_column]
