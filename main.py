@@ -15,11 +15,18 @@ def main():
 
     # TODO Align all species to humans and print species in order of most similar to human BRD
     # using gap opening penalty of -10 and a gap extension penalty of -1 and BLOSUM62 matrix
-    pass
+    nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -10, -1)
+    align_dict = { species : nw.align(hs_seq, sequence)[0] for species, sequence  in 
+    zip(["Gallus Gallus", "Mus Musculus", "Balaeniceps Rex", "Tursiops Truncatus"], [gg_seq, mm_seq, br_seq, tt_seq])}
+    sorted_align_dict = dict(sorted(align_dict.items(), key=lambda item: item[1], reverse=True))
+    print("Species in order of most similarity to human: ", list(sorted_align_dict.keys()))
+    print('\n')
 
     # TODO print all of the alignment score between each species BRD2 and human BRD2
     # using gap opening penalty of -10 and a gap extension penalty of -1 and BLOSUM62 matrix
-    pass
+    print("Alignment score between each species BRD2 and human BRD2: ")
+    for k,v in sorted_align_dict.items():
+        print(k,v)
 
 if __name__ == "__main__":
     main()

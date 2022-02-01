@@ -267,6 +267,8 @@ class NeedlemanWunsch:
     def _backtrace_verbose(self, m_row, n_column, max_matrix_score, max_matrix_index):
         """
         """
+        print('### Starting backtrace ###')
+
         print('seq a: ', self._seqA)
         print('seq b: ',self._seqB)
         print('\n')
@@ -302,8 +304,6 @@ class NeedlemanWunsch:
         score, the seqA alignment and the seqB alignment respectively.
         """
         # Implement this method based upon the heuristic chosen in the align method above.
-
-        print('### Starting backtrace ###')
 
         m_row,n_column = len(self._seqA),len(self._seqB)
         
