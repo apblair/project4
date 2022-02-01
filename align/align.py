@@ -164,8 +164,8 @@ class NeedlemanWunsch:
 
         print('### Compute inner score matrix ###', '\n')
         # Calculate inner values in the score matrix
-        for m in range(1, self._align_matrix.shape[0]):
-            for n in range(1, self._align_matrix.shape[1]):
+        for m in range(1, self._align_matrix.shape[0]): # iterate over sequence A (row)
+            for n in range(1, self._align_matrix.shape[1]): # iterate over sequence B (column)
 
                 print('row: ', m)
                 print('column: ', n, '\n')      
@@ -215,12 +215,15 @@ class NeedlemanWunsch:
                 print('B backtrace matrix: ', '\n', self._back_B)
 
                 print('\n','\n')
-
         return self._backtrace()
 
     def _backtrace(self) -> Tuple[float, str, str]:
         """
-        # TODO Implement the traceback procedure method below
+        References
+        ----------
+        1. https://wilkelab.org/classes/SDS348/2019_spring/labs/lab13-solution.html
+        
+        TODO: Implement the traceback procedure method below
         based on the heuristic you implement in the align method.
         The traceback method should return a tuple of the alignment
         score, the seqA alignment and the seqB alignment respectively.
@@ -233,21 +236,46 @@ class NeedlemanWunsch:
         
         matrices_list = [self._align_matrix[-1,-1], self._gapA_matrix[-1,-1], self._gapB_matrix[-1,-1]]
         max_matrix_score, max_matrix_index  = max(matrices_list), np.argmax(matrices_list)
-        
+        self.alignment_score = max_matrix_score
+
         print('seq a: ', self._seqA)
         print('seq b: ',self._seqB)
+        print('\n')
+
         print('Number of rows x columns: ', m_row, n_column)
         print('Alignment matrix shape: ', self._align_matrix.shape)
+        print('\n')
+        
         print('Max alignment score: ', max_matrix_score)
         print('Max alignment matrix index [align, gap a, gap b]: ', max_matrix_index)
+        print('\n')
 
         while m_row>0 and n_column>0:
+            
             if max_matrix_index == 0:
                 self.seqA_align = self._seqA[m_row-1] + self.seqA_align 
                 self.seqB_align = self._seqB[n_column-1] + self.seqB_align 
-                print(self.seqA_align)
-                print(self.seqB_align)
-            break
+                max_matrix_index = self._back[m_row,n_column]
+                m_row-=1
+                n_column-=1
+
+            elif max_matrix_index == 1:
+                self.seqA_align = '-' + self.seqA_align 
+                self.seqB_align = self._seqB[n_column-1] + self.seqB_align 
+                max_matrix_index = self._back_A[m_row, n_column]
+                n_column-=1
+
+            elif max_matrix_index == 2: 
+                self.seqA_align = self._seqA[m_row-1]+ self.seqA_align
+                self.seqB_align = '-' + self.seqB_align
+                max_matrix_index = self._back_B[m_row, n_column]
+                m_row-=1
+        
+        print('Alignment seq A: ', self.seqA_align)
+        print('Alignment seq B: ', self.seqB_align)
+        print('Alignment score: ', self.alignment_score)
+
+        return (self.alignment_score, self.seqA_align, self.seqB_align)
 
 def read_fasta(fasta_file: str) -> Tuple[str, str]:
     """
