@@ -100,6 +100,7 @@ class NeedlemanWunsch:
     
     def _initialize_NeedlemanWunsch(self):
         """
+        Initialize M, gap A, and gap B matrices.
         """
         self._align_matrix[0,0] = 0
         self._gapA_matrix[:,0] = [self.gap_open + n*self.gap_extend for n in range(len(self._seqA) + 1)] # column
@@ -139,6 +140,11 @@ class NeedlemanWunsch:
     
     def _construct_M(self, m, n):
         """
+
+        Parameters
+        ----------
+        m
+        n
         """
         maxtrix_alignment_list = [self._align_matrix[m-1, n-1],
                                         self._gapA_matrix[m-1, n-1],
@@ -150,6 +156,14 @@ class NeedlemanWunsch:
     
     def _construct_M_verbose(self, m, n, maxtrix_alignment_list, max_value, max_index):
         """
+
+        Parameters
+        ----------
+        m
+        n
+        maxtrix_alignment_list
+        max_value
+        max_index
         """
         print('row: ', m)
         print('column: ', n, '\n')      
@@ -166,6 +180,11 @@ class NeedlemanWunsch:
     
     def _construct_gap_A(self, m, n):
         """
+
+        Parameters
+        ----------
+        m
+        n
         """
         a_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m, n-1], 
                                 self.gap_extend + self._gapA_matrix[m, n-1], 
@@ -175,8 +194,14 @@ class NeedlemanWunsch:
         self._back_A[m, n] = a_max_index
         # self._construct_gap_A_verbose(a_matrix_list, a_max_value, a_max_index)
         
-    def _construct_gap_A_verbose(self,a_matrix_list, a_max_value, a_max_index):
+    def _construct_gap_A_verbose(self, a_matrix_list, a_max_value, a_max_index):
         """
+
+        Parameters
+        ----------
+        a_matrix_list
+        a_max_value
+        a_max_index
         """
         print('## A matrix ##')         
         print('A matrix list: ', a_matrix_list)
@@ -187,6 +212,11 @@ class NeedlemanWunsch:
 
     def _construct_gap_B(self, m, n):
         """
+
+        Parameters
+        ----------
+        m
+        n
         """
         b_matrix_list = [self.gap_open + self.gap_extend + self._align_matrix[m-1,n],
                                  self.gap_open + self.gap_extend + self._gapA_matrix[m-1,n],
@@ -198,6 +228,12 @@ class NeedlemanWunsch:
     
     def _construct_gap_B_verbose(self, b_matrix_list, b_max_value, b_max_index):
         """
+
+        Parameters
+        ----------
+        b_matrix_list
+        b_max_value
+        b_max_index
         """
         print('## B matrix ##')         
         print('B matrix list: ', b_matrix_list)
@@ -266,6 +302,12 @@ class NeedlemanWunsch:
     
     def _backtrace_verbose(self, m_row, n_column, max_matrix_score, max_matrix_index):
         """
+        Parameters
+        ----------
+        m_row
+        n_column
+        max_matrix_score
+        max_matrix_index)
         """
         print('### Starting backtrace ###')
 
@@ -306,7 +348,7 @@ class NeedlemanWunsch:
         # Implement this method based upon the heuristic chosen in the align method above.
 
         m_row,n_column = len(self._seqA),len(self._seqB)
-        
+
         matrices_list = [self._align_matrix[-1,-1], self._gapA_matrix[-1,-1], self._gapB_matrix[-1,-1]]
         max_matrix_score, max_matrix_index  = max(matrices_list), np.argmax(matrices_list)
         self.alignment_score = max_matrix_score
@@ -374,8 +416,3 @@ def read_fasta(fasta_file: str) -> Tuple[str, str]:
             elif is_header and not first_header:
                 break
     return seq, header
-
-# seq_1, header_1 = read_fasta("./data/test_seq1.fa")
-# seq_2, header_2 = read_fasta("./data/test_seq2.fa")
-# nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -10, -1)
-# out = nw.align(seq_1, seq_2)

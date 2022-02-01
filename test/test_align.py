@@ -14,7 +14,13 @@ def test_nw_alignment():
     """
     seq1, _ = read_fasta("./data/test_seq1.fa")
     seq2, _ = read_fasta("./data/test_seq2.fa")
-    pass
+    nw = NeedlemanWunsch("./substitution_matrices/BLOSUM62.mat", -10, -1)
+    alignment_tuple = nw.align(seq1, seq2)
+
+    assert tuple([len(seq1)+1, len(seq2)+1]) == nw._align_matrix.shape, "Error: matrix dimensions are wrong. The shape should be rows of length of seq1+1 and columns of length of seq2+1."
+    assert nw._align_matrix[0, 0] == 0, "Error: Initialization was not set correctly!"
+    assert alignment_tuple[0] == 4, "Error: Alignment score for test case is wrong!"
+    assert np.allclose(nw._align_matrix[-1,:],[-np.inf, -14, -6, 4])
 
 def test_nw_backtrace():
     """
@@ -29,5 +35,5 @@ def test_nw_backtrace():
     pass
 
 
-
+test_nw_alignment()
 
